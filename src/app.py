@@ -49,10 +49,42 @@ class SubRenamerApp:
         self.matched_files.clear()
         self.main_window.update_file_list(self.matched_files)
     
+    def _validate_files(self) -> bool:
+        """Validate that the number of video and subtitle files match."""
+        if not self.matched_files:
+            return False
+            
+        # Count video and subtitle files
+        video_count = sum(1 for match in self.matched_files if match['video_file'] is not None)
+        subtitle_count = sum(1 for match in self.matched_files if match['subtitle_file'] is not None)
+        
+        # Validation rule 2: Neither can be 0
+        if video_count == 0:
+            messagebox.showerror("Validation Error", "No video files found. Please add video files.")
+            return False
+            
+        if subtitle_count == 0:
+            messagebox.showerror("Validation Error", "No subtitle files found. Please add subtitle files.")
+            return False
+        
+        # Validation rule 1: Counts must match
+        if video_count != subtitle_count:
+            messagebox.showerror(
+                "Validation Error", 
+                f"Number of video files ({video_count}) must match number of subtitle files ({subtitle_count})."
+            )
+            return False
+            
+        return True
+    
     def process_rename(self) -> None:
         """Process the renaming of subtitle files."""
         if not self.matched_files:
             messagebox.showwarning("Warning", "No files to process.")
+            return
+        
+        # Validate files before processing
+        if not self._validate_files():
             return
         
         try:
