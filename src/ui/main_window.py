@@ -45,6 +45,7 @@ class MainWindow:
         style = ttk.Style()
         style.configure("Custom.Treeview", rowheight=30)  # Add row padding
         style.configure("Custom.Treeview.Heading", font=("Arial", 10, "bold"))
+        style.configure("Custom.Treeview.Cell", padding=(10, 0, 10, 0))
         
         # Create treeview with 3 columns
         columns = ("video_file", "original_subtitle", "new_subtitle")
