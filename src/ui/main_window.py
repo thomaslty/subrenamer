@@ -60,10 +60,10 @@ class MainWindow:
         self.tree.heading("original_subtitle", text="Original Subtitle")
         self.tree.heading("new_subtitle", text="Renamed Subtitle")
         
-        # Set column widths (resizable)
-        self.tree.column("video_file", width=250, minwidth=150)
-        self.tree.column("original_subtitle", width=250, minwidth=150)
-        self.tree.column("new_subtitle", width=250, minwidth=150)
+        # Set column widths (resizable) - stretch=False keeps original width
+        self.tree.column("video_file", width=250, minwidth=150, stretch=False)
+        self.tree.column("original_subtitle", width=250, minwidth=150, stretch=False)
+        self.tree.column("new_subtitle", width=250, minwidth=150, stretch=False)
         
         # Add scrollbars
         v_scrollbar = ttk.Scrollbar(list_frame, orient=tk.VERTICAL, command=self.tree.yview)
