@@ -41,9 +41,18 @@ class MainWindow:
         list_frame.columnconfigure(0, weight=1)
         list_frame.rowconfigure(0, weight=1)
         
+        # Configure treeview style for better appearance
+        style = ttk.Style()
+        style.configure("Custom.Treeview", rowheight=30)  # Add row padding
+        style.configure("Custom.Treeview.Heading", font=("Arial", 10, "bold"))
+        
         # Create treeview with 3 columns
         columns = ("video_file", "original_subtitle", "new_subtitle")
-        self.tree = ttk.Treeview(list_frame, columns=columns, show="headings", height=15)
+        self.tree = ttk.Treeview(list_frame, columns=columns, show="headings", height=15, style="Custom.Treeview")
+        
+        # Configure alternating row colors for visual separation (after tree creation)
+        self.tree.tag_configure('oddrow', background='#f0f0f0')
+        self.tree.tag_configure('evenrow', background='white')
         
         # Define column headings and properties
         self.tree.heading("video_file", text="Video File")
@@ -134,10 +143,12 @@ class MainWindow:
         
         self.hide_drop_label()
         
-        # Add matched files to the tree
-        for match in matched_files:
+        # Add matched files to the tree with alternating row colors
+        for index, match in enumerate(matched_files):
             video_name = os.path.basename(match['video_file']) if match['video_file'] else ""
             original_sub = os.path.basename(match['subtitle_file']) if match['subtitle_file'] else ""
             new_sub = os.path.basename(match['new_subtitle_name']) if match['new_subtitle_name'] else ""
             
-            self.tree.insert("", tk.END, values=(video_name, original_sub, new_sub))
+            # Apply alternating row colors for visual separation
+            tag = 'evenrow' if index % 2 == 0 else 'oddrow'
+            self.tree.insert("", tk.END, values=(video_name, original_sub, new_sub), tags=(tag,))
