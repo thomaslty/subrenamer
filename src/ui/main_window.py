@@ -43,7 +43,7 @@ class MainWindow:
         
         # Configure treeview style for better appearance
         style = ttk.Style()
-        style.configure("Custom.Treeview", rowheight=30)  # Add row padding
+        style.configure("Custom.Treeview", rowheight=24)  # Add row padding
         style.configure("Custom.Treeview.Heading", font=("Arial", 10, "bold"))
         style.configure("Custom.Treeview.Cell", padding=(10, 0, 10, 0))
         
