@@ -1,0 +1,4 @@
+tkinterdnd2
+Pillow
+py2app
+dmgbuild
