@@ -86,10 +86,10 @@ jobs:
         path: "*.dmg"
         
     - name: Create Release and Upload Asset
-      if: github.event_name == 'push' && github.ref_type == 'tag'
+      if: (github.event_name == 'push' && github.ref_type == 'tag') || github.event_name == 'workflow_dispatch'
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref_name }}
+        tag_name: v${{ env.VERSION }}
         name: SubRenamer v${{ env.VERSION }}
         body: |
           ## SubRenamer v${{ env.VERSION }}
