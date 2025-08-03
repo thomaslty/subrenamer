@@ -9,8 +9,7 @@ APP = ['main.py']
 DATA_FILES = []
 
 OPTIONS = {
-    'argv_emulation': True,
-    'iconfile': 'icon.icns',  # Optional: add an icon file
+    'iconfile': 'icon.icns',
     'plist': {
         'CFBundleDisplayName': 'SubRenamer',
         'CFBundleName': 'SubRenamer',
@@ -21,9 +20,8 @@ OPTIONS = {
         'NSHighResolutionCapable': True,
         'LSMinimumSystemVersion': '10.15.0',
     },
-    'packages': ['tkinterdnd2'],
-    'includes': ['tkinter', 'tkinterdnd2'],
-    'excludes': ['tkinter.test'],
+    'includes': ['tkinter', 'tkinterdnd2', 'src', 'src.app', 'src.ui.main_window', 'src.core.file_matcher', 'src.core.renamer'],
+    'excludes': ['tkinter.test', 'test', 'tests'],
     'optimize': 2,
 }
 
