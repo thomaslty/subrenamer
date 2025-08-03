@@ -1,0 +1,109 @@
+name: Build and Release SubRenamer
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+  workflow_dispatch:  # Allows manual triggering
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Create virtual environment
+      run: |
+        python -m venv .venv
+        source .venv/bin/activate
+        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+        
+    - name: Install dependencies
+      run: |
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set version from tag or input
+      run: |
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="1.0.0"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Building version: $VERSION"
+        
+    - name: Update version in setup.py
+      run: |
+        sed -i '' "s/version='[^']*'/version='$VERSION'/" setup.py
+        sed -i '' "s/'CFBundleVersion': '[^']*'/'CFBundleVersion': '$VERSION'/" setup.py
+        sed -i '' "s/'CFBundleShortVersionString': '[^']*'/'CFBundleShortVersionString': '$VERSION'/" setup.py
+        
+    - name: Update DMG filename in build script
+      run: |
+        sed -i '' "s/SubRenamer-[0-9.]*.dmg/SubRenamer-$VERSION.dmg/" build.sh
+        
+    - name: Make build script executable
+      run: chmod +x build.sh
+      
+    - name: Build application
+      run: |
+        source .venv/bin/activate
+        ./build.sh
+        
+    - name: Verify build artifacts
+      run: |
+        ls -la
+        ls -la dist/ || echo "dist directory not found"
+        ls -la *.dmg || echo "DMG file not found"
+        
+    - name: Upload DMG artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: SubRenamer-${{ env.VERSION }}-dmg
+        path: "*.dmg"
+        
+    - name: Create Release and Upload Asset
+      if: github.event_name == 'push' && github.ref_type == 'tag'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: SubRenamer v${{ env.VERSION }}
+        body: |
+          ## SubRenamer v${{ env.VERSION }}
+          
+          ### Downloads
+          - **SubRenamer-${{ env.VERSION }}.dmg** - macOS installer
+          
+          ### Installation
+          1. Download the DMG file
+          2. Open the DMG file
+          3. Drag SubRenamer.app to your Applications folder
+          
+          ### What's New
+          - Please see the commit history for detailed changes
+        files: |
+          SubRenamer-${{ env.VERSION }}.dmg
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
