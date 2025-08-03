@@ -80,7 +80,7 @@ jobs:
         ls -la *.dmg || echo "DMG file not found"
         
     - name: Upload DMG artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SubRenamer-${{ env.VERSION }}-dmg
         path: "*.dmg"
